@@ -61,6 +61,7 @@ public class CorpusByHttpWorkflow {
 
         File outputFile = new File("corpus/articles.json.gz");
         if (outputFile.exists()) outputFile.delete();
+        else outputFile.mkdirs();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream("corpus/articles.json.gz"))));
 
         AtomicInteger addedArticles = new AtomicInteger();
