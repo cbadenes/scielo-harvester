@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.cbadenes</groupId>
+  <artifactId>scielo-oai-harvester</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Scielo OAI Harvester</name>
+  <description>OAI-based Harvester for Scielo repository</description>
+  <url>https://github.com/cbadenes/scielo-oai-harvester</url>
+  <inceptionYear>2018</inceptionYear>
+
+  <prerequisites>
+    <maven>3.2.5</maven>
+  </prerequisites>
+
+  <properties>
+	  <!-- Project Details -->
+	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	  <project.java.version>1.8</project.java.version>
+	  <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+	  <!-- Maven Plugins -->
+	  <maven.appassembler.plugin.version>1.9</maven.appassembler.plugin.version>
+	  <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
+	  <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
+	  <maven.jar.plugin.version>2.6</maven.jar.plugin.version>
+	  <maven.site.plugin.version>0.10</maven.site.plugin.version>
+	  <maven.scala.version>2.15.2</maven.scala.version>
+	  <maven.surefire.plugin.version>2.11</maven.surefire.plugin.version>
+	  <maven.war.plugin.version>2.6</maven.war.plugin.version>
+	  <maven.resources.plugin.version>2.7</maven.resources.plugin.version>
+	  <surefire.junit.version>2.12</surefire.junit.version>
+
+	  <!-- Project Dependencies -->
+	  <camel.version>2.14.1</camel.version> <!-- 2.22.0 -->
+	  <commons-text.version>1.4</commons-text.version>
+	  <guava.version>25.1-jre</guava.version>
+	  <jackson.version>2.9.4</jackson.version>
+	  <jsoup.version>1.11.3</jsoup.version>
+	  <junit.version>4.12</junit.version>
+	  <language-detector.version>0.6</language-detector.version>
+	  <logback.version>1.1.3</logback.version>
+	  <mapdb.version>3.0.7</mapdb.version>
+	  <oai.version>1.1.0</oai.version>
+	  <unirest.version>1.4.9</unirest.version>
+  </properties>
+
+	  <dependencyManagement>
+		  <dependencies>
+
+			  <!-- Http Libraries -->
+			  <dependency>
+				  <groupId>com.mashape.unirest</groupId>
+				  <artifactId>unirest-java</artifactId>
+				  <version>${unirest.version}</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>org.jsoup</groupId>
+				  <artifactId>jsoup</artifactId>
+				  <version>${jsoup.version}</version>
+			  </dependency>
+
+			  <!-- Apache Camel -->
+			  <dependency>
+				  <groupId>org.apache.camel</groupId>
+				  <artifactId>camel-core</artifactId>
+				  <version>${camel.version}</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>org.apache.camel</groupId>
+				  <artifactId>camel-jaxb</artifactId>
+				  <version>${camel.version}</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>org.apache.camel</groupId>
+				  <artifactId>camel-csv</artifactId>
+				  <version>${camel.version}</version>
+			  </dependency>
+
+			  <!-- Language Detector -->
+			  <dependency>
+				  <groupId>com.optimaize.languagedetector</groupId>
+				  <artifactId>language-detector</artifactId>
+				  <version>${language-detector.version}</version>
+			  </dependency>
+
+			  <!-- OAI-PMH -->
+			  <dependency>
+				  <groupId>es.upm.oeg.camel</groupId>
+				  <artifactId>camel-oaipmh</artifactId>
+				  <version>${oai.version}</version>
+			  </dependency>
+
+			  <dependency>
+				  <groupId>com.fasterxml.jackson.core</groupId>
+				  <artifactId>jackson-databind</artifactId>
+				  <version>${jackson.version}</version>
+			  </dependency>
+
+			  <!-- Commons -->
+			  <dependency>
+				  <groupId>com.google.guava</groupId>
+				  <artifactId>guava</artifactId>
+				  <version>${guava.version}</version>
+			  </dependency>
+			 <dependency>
+				  <groupId>org.mapdb</groupId>
+				  <artifactId>mapdb</artifactId>
+				  <version>${mapdb.version}</version>
+			  </dependency>
+
+			  <!-- Log Libraries -->
+			  <dependency>
+				  <groupId>ch.qos.logback</groupId>
+				  <artifactId>logback-classic</artifactId>
+				  <version>${logback.version}</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>ch.qos.logback</groupId>
+				  <artifactId>logback-core</artifactId>
+				  <version>${logback.version}</version>
+			  </dependency>
+
+			  <dependency>
+				  <groupId>org.apache.commons</groupId>
+				  <artifactId>commons-text</artifactId>
+				  <version>${commons-text.version}</version>
+			  </dependency>
+
+			  <!-- Unit tests Libraries -->
+			  <dependency>
+				  <groupId>junit</groupId>
+				  <artifactId>junit</artifactId>
+				  <version>${junit.version}</version>
+			  </dependency>
+
+		  </dependencies>
+	  </dependencyManagement>
+
+	  <dependencies>
+
+		  <!-- Http Libraries -->
+		  <dependency>
+			  <groupId>com.mashape.unirest</groupId>
+			  <artifactId>unirest-java</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>org.jsoup</groupId>
+			  <artifactId>jsoup</artifactId>
+		  </dependency>
+
+		  <!-- Apache Camel -->
+		  <dependency>
+			  <groupId>org.apache.camel</groupId>
+			  <artifactId>camel-core</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>org.apache.camel</groupId>
+			  <artifactId>camel-jaxb</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>org.apache.camel</groupId>
+			  <artifactId>camel-csv</artifactId>
+		  </dependency>
+
+		  <dependency>
+			  <groupId>org.apache.commons</groupId>
+			  <artifactId>commons-text</artifactId>
+		  </dependency>
+
+		  <!-- Language Detector -->
+		  <dependency>
+			  <groupId>com.optimaize.languagedetector</groupId>
+			  <artifactId>language-detector</artifactId>
+		  </dependency>
+
+		  <!-- Commons -->
+		  <dependency>
+			  <groupId>com.google.guava</groupId>
+			  <artifactId>guava</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>org.mapdb</groupId>
+			  <artifactId>mapdb</artifactId>
+		  </dependency>
+
+		  <!-- OAI-PMH -->
+		  <dependency>
+			  <groupId>es.upm.oeg.camel</groupId>
+			  <artifactId>camel-oaipmh</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>com.fasterxml.jackson.core</groupId>
+			  <artifactId>jackson-databind</artifactId>
+		  </dependency>
+
+		  <!-- Unit tests -->
+		  <dependency>
+			  <groupId>junit</groupId>
+			  <artifactId>junit</artifactId>
+			  <scope>test</scope>
+		  </dependency>
+
+		  <!-- Logging -->
+		  <dependency>
+			  <groupId>ch.qos.logback</groupId>
+			  <artifactId>logback-classic</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>ch.qos.logback</groupId>
+			  <artifactId>logback-core</artifactId>
+		  </dependency>
+
+	  </dependencies>
+
+	  <build>
+		  <resources>
+			  <resource>
+				  <directory>src/main/resources</directory>
+			  </resource>
+		  </resources>
+		  <finalName>${project.artifactId}</finalName>
+		  <plugins>
+
+			  <!-- Maven Compiler Plugin -->
+			  <plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-compiler-plugin</artifactId>
+				  <version>${maven.compiler.plugin.version}</version>
+				  <configuration>
+					  <encoding>${project.build.sourceEncoding}</encoding>
+					  <source>${project.java.version}</source>
+					  <target>${project.java.version}</target>
+					  <compilerVersion>${project.java.version}</compilerVersion>
+				  </configuration>
+			  </plugin>
+
+			  <!-- Maven Test Plugin -->
+			  <plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-surefire-plugin</artifactId>
+				  <version>2.11</version>
+				  <configuration>
+					  <excludes>
+						  <exclude>%regex[.*Eval.*]</exclude>
+						  <exclude>%regex[.*IntTest.*]</exclude>
+						  <exclude>%regex[.*tasks.*]</exclude>
+					  </excludes>
+				  </configuration>
+			  </plugin>
+		  </plugins>
+	  </build>
+
+	<repositories>
+		<!-- GitHub Repository -->
+		<repository>
+			<id>camel-oaipmh-mvn-repo</id>
+			<url>https://raw.github.com/cbadenes/camel-oaipmh/mvn-repo/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+  </project>
