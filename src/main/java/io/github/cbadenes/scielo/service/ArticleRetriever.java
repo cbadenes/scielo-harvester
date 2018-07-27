@@ -47,7 +47,10 @@ public class ArticleRetriever {
             //Document articleXML = Jsoup.parse(new URL(url).openStream(), "ISO-8859-1", url);
 
             String id   = articleXML.select("article-id:not([pub-id-type=doi])").text();
-            if (Strings.isNullOrEmpty(id)) return article;
+            if (Strings.isNullOrEmpty(id)){
+                LOG.info("missing ID from article");
+                return article;
+            }
             article.setId(id);
 
             String doi  = articleXML.select("article-id[pub-id-type=doi]").text();
@@ -69,7 +72,10 @@ public class ArticleRetriever {
             article.setKeywords(keywords);
 
             String paragraphs = articleXML.select("body").stream().map(el -> el.text().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","")).filter(text -> languageDetector.isLanguage(language, text)).collect(Collectors.joining(" "));
-            if (Strings.isNullOrEmpty(paragraphs)) return article;
+            if (Strings.isNullOrEmpty(paragraphs)) {
+                LOG.info("article is empty");
+                return article;
+            }
             article.setText(paragraphs);
 
 
@@ -89,8 +95,14 @@ public class ArticleRetriever {
             for(String volumeId : volumes) {
 
                 LOG.info("Retrieving articles from volume: " + volumeId + " in journal " + journal + " ..");
-                List<String> paperIds = Jsoup.connect("http://"+ journal.getSite() +"/scielo.php?script=sci_issuetoc&pid=" + volumeId + "&lng=en&nrm=iso").get().select("span[id]").stream().map(el -> el.attributes().get("id")).filter(el -> el.startsWith("pr_S")).map(id -> id.replace("pr_", "")).collect(Collectors.toList());
-                articles.addAll(paperIds.stream().filter(id -> !Strings.isNullOrEmpty(id)).map(id -> retrieveById(id)).filter(art -> !Strings.isNullOrEmpty(art.getText())).collect(Collectors.toList()));
+                String papersFromVolumeURL = "http://" + journal.getSite() + "/scielo.php?script=sci_issuetoc&pid=" + volumeId + "&lng=en&nrm=iso";
+
+                List<String> paperIds = Jsoup.connect(papersFromVolumeURL).get().select("a[href]").stream().map(el -> el.attributes().get("href")).filter(ref -> ref.contains("sci_arttext&pid=")).map(uri -> StringUtils.substringBetween(uri,"pid=","&lng")).distinct().collect(Collectors.toList());
+
+                List<Article> paperAsArticles = paperIds.stream().filter(id -> !Strings.isNullOrEmpty(id)).map(id -> retrieveById(id)).filter(art -> !Strings.isNullOrEmpty(art.getText())).collect(Collectors.toList());
+
+
+                articles.addAll(paperAsArticles);
 
             }
         } catch (Exception e) {
@@ -101,8 +113,11 @@ public class ArticleRetriever {
 
 
     public static void main(String[] args) {
-        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("j1","sample","scielo.iscii.es"));
-        Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S1578-908X2013000200003&lang=en");
+//        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1578-908X","sample","scielo.isciii.es"));
+        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1684-1999","sample","www.scielo.org.za"));
+
+        List<Article> result = articleRetriever.retrieveAll();
+        //Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S1578-908X2013000200003&lang=en");
         LOG.info("result: " + result);
     }
 }
