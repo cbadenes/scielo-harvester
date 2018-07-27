@@ -72,8 +72,9 @@ public class CorpusByHttpWorkflow {
         Map<String,Integer> articlesRegistry = new ConcurrentHashMap();
         while( (siteInfo = reader.readLine()) != null){
 
-            String[] values = siteInfo.split(",");
-            String baseUrl = values[0];
+            if (siteInfo.startsWith("#")) continue;
+
+            String baseUrl = siteInfo;
 
 
             List<Journal> journals = siteHarvester.getJournals(baseUrl);
@@ -104,6 +105,8 @@ public class CorpusByHttpWorkflow {
                     }
                 });
             }
+
+            break;
 
         }
         executor.awaitTermination(1, TimeUnit.HOURS);
