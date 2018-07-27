@@ -2,6 +2,7 @@
 *.iml
 target/
 corpus/
+nohup.*
 
 # Compiled class file
 *.class
