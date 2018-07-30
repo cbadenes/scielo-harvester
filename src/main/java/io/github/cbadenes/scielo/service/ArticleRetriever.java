@@ -91,7 +91,7 @@ public class ArticleRetriever {
     public List<Article> retrieveAll(){
         List<Article> articles = new ArrayList<>();
         try {
-            List<String> volumes = Jsoup.connect("http://" + journal.getSite() + "/scielo.php?script=sci_issues&pid=" + journal.getId() + "&lng=en&nrm=iso").get().select("a[href^=http://" + journal.getSite() + "/scielo.php?script=sci_issuetoc]").stream().map(el -> StringUtils.substringBetween(el.attr("href"), "pid=", "&")).collect(Collectors.toList());
+            List<String> volumes = Jsoup.connect("http://" + journal.getSite() + "/scielo.php?script=sci_issues&pid=" + journal.getId() + "&lng=en&nrm=iso").get().select("a[href*=//" + journal.getSite() + "/scielo.php?script=sci_issuetoc]").stream().map(el -> StringUtils.substringBetween(el.attr("href"), "pid=", "&")).collect(Collectors.toList());
             for(String volumeId : volumes) {
 
                 LOG.info("Retrieving articles from volume: " + volumeId + " in journal " + journal + " ..");
