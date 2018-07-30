@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
  */
 
-public class CorpusByOAIWorkflow {
+public class HarvestOAIWorkflow {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CorpusByOAIWorkflow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HarvestOAIWorkflow.class);
 
 
     public static void main(String args[]) throws Exception {

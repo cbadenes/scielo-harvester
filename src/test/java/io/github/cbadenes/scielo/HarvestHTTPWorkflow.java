@@ -31,9 +31,9 @@ import java.util.zip.GZIPOutputStream;
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
  */
 
-public class CorpusByHttpWorkflow {
+public class HarvestHTTPWorkflow {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CorpusByHttpWorkflow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HarvestHTTPWorkflow.class);
 
 
     private static List<Article> recursiveDownloadByCitesOf(Article article, Map<String,Integer> registry, ArticleRetriever retriever) {

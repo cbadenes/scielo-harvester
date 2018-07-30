@@ -17,9 +17,24 @@ public class Journal {
 
     private String site;
 
+    public Journal() {
+    }
+
     public Journal(String id, String name, String site) {
         this.id = id;
         this.name = name;
+        this.site = site;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSite(String site) {
         this.site = site;
     }
 
