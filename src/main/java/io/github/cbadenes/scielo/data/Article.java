@@ -118,6 +118,8 @@ public class Article {
         this.journal = journal;
     }
 
+
+
     @Override
     public String toString() {
         return "Article{" +
