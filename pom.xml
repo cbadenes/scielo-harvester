@@ -53,8 +53,6 @@
 	  <camel.version>2.14.1</camel.version> <!-- 2.22.0 -->
 	  <commons-text.version>1.4</commons-text.version>
 	  <commons-beanutils.version>1.9.3</commons-beanutils.version>
-	  <google.api>1.34.0</google.api>
-	  <google.truth>0.41</google.truth>
 	  <guava.version>25.1-jre</guava.version>
 	  <jackson.version>2.9.4</jackson.version>
 	  <jsoup.version>1.11.3</jsoup.version>
@@ -128,18 +126,6 @@
 				  <groupId>org.mapdb</groupId>
 				  <artifactId>mapdb</artifactId>
 				  <version>${mapdb.version}</version>
-			  </dependency>
-
-			  <!-- Google API -->
-			  <dependency>
-				  <groupId>com.google.cloud</groupId>
-				  <artifactId>google-cloud-translate</artifactId>
-				  <version>${google.api}</version>
-			  </dependency>
-			  <dependency>
-				  <groupId>com.google.truth</groupId>
-				  <artifactId>truth</artifactId>
-				  <version>${google.truth}</version>
 			  </dependency>
 
 			  <!-- Log Libraries -->
@@ -226,16 +212,6 @@
 		  <dependency>
 			  <groupId>org.mapdb</groupId>
 			  <artifactId>mapdb</artifactId>
-		  </dependency>
-
-		  <!-- Google API -->
-		  <dependency>
-			  <groupId>com.google.cloud</groupId>
-			  <artifactId>google-cloud-translate</artifactId>
-		  </dependency>
-		  <dependency>
-			  <groupId>com.google.truth</groupId>
-			  <artifactId>truth</artifactId>
 		  </dependency>
 
 		  <!-- OAI-PMH -->
