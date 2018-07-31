@@ -57,7 +57,7 @@ public class HarvestHTTPWorkflow {
         SiteHarvester siteHarvester = new SiteHarvester();
         ParallelExecutor executor = new ParallelExecutor();
 
-        BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/journals.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/sites.csv"));
 
         File outputFile = new File("corpus/articles.json.gz");
         if (outputFile.exists()) outputFile.delete();
