@@ -296,9 +296,7 @@
 				  <version>2.11</version>
 				  <configuration>
 					  <excludes>
-						  <exclude>%regex[.*Eval.*]</exclude>
-						  <exclude>%regex[.*IntTest.*]</exclude>
-						  <exclude>%regex[.*tasks.*]</exclude>
+						  <exclude>%regex[.*Workflow.*]</exclude>
 					  </excludes>
 				  </configuration>
 			  </plugin>
