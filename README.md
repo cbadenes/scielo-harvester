@@ -5,8 +5,8 @@
 ## Features
 - [OAI-PMH](https://www.openarchives.org/pmh/) Client by using a [Camel](https://github.com/cbadenes/camel-oaipmh) Workflow
 - HTTP Client by using a [Java HTML Parser](https://jsoup.org)
-- Along with the content of the article, it provides the list of articles that cite it. (based on [CitedBy Restful API](http://docs.scielo.org/projects/citedby)
-- JSON serialization in a .gz file:
+- Along with the content of the article, it provides the list of articles that cite it. (based on [CitedBy Restful API](http://docs.scielo.org/projects/citedby))
+- JSON serialization in a .gz file as follows (per line):
     ```
 	{
     	"id": "S2340-98942016000100002",
@@ -38,7 +38,7 @@
 - The above command downloads articles published in sites specified within `src/main/resources/sites.csv`.
 - All articles are saved at: `corpus/articles.json.gz` 
 - Once the download is complete, check the result by `gunzip -c corpus/articles.json.gz | head -1`
-
+- Run it in background mode by `launch harvest.sh` 
 
 ## Contact
 This repository is maintained by [Carlos Badenes-Olmedo](mailto:cbadenes@gmail.com). Please send me an e-mail or open a GitHub issue if you have questions. 
