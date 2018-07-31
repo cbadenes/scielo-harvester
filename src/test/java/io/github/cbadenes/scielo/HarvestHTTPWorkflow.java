@@ -37,14 +37,22 @@ public class HarvestHTTPWorkflow {
 
 
     private static List<Article> recursiveDownloadByCitesOf(Article article, Map<String,Integer> registry, ArticleRetriever retriever) {
-        if (Strings.isNullOrEmpty(article.getText())) return Collections.emptyList();
-        List<Article> articles = new ArrayList<>();
-        articles.add(article);
-        if (registry.containsKey(article.getId())) return articles;
-
+        if (Strings.isNullOrEmpty(article.getText()) || registry.containsKey(article.getId())) return Collections.emptyList();
         registry.put(article.getId(), 1);
 
-        articles.addAll(article.getCitedBy().stream().filter(id -> !Strings.isNullOrEmpty(id)).filter(id -> !registry.containsKey(id)).flatMap(id -> recursiveDownloadByCitesOf(retriever.retrieveById(id), registry, retriever).stream()).collect(Collectors.toList()));
+        List<Article> articles = new ArrayList<>();
+        articles.add(article);
+
+        List<Article> citedArticles = article.getCitedBy().stream().map(id -> CiteManager.getUrl(id).get()).map(url -> retriever.retrieveByUrl(url)).filter(art -> !Strings.isNullOrEmpty(art.getText())).collect(Collectors.toList());
+
+        // add cites to articles
+        articles.addAll(citedArticles);
+
+        // update with only valid cites
+        article.setCitedBy(citedArticles.stream().map(art -> art.getId()).collect(Collectors.toList()));
+
+        // recursive action
+        articles.addAll(citedArticles.stream().flatMap(art -> recursiveDownloadByCitesOf(art, registry, retriever).stream()).collect(Collectors.toList()));
 
         return articles;
     }

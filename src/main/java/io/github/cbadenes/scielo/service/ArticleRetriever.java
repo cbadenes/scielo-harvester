@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +40,13 @@ public class ArticleRetriever {
 
     public Article retrieveByUrl(String url){
         LOG.info("Retrieving article ["+ url + "]");
+        if (Strings.isNullOrEmpty(url)) return new Article();
         Article article = new Article();
         if (journal != null) article.setJournal(journal);
 
         try{
             Document articleXML = Jsoup.connect(url).get();
-            //Document articleXML = Jsoup.parse(new URL(url).openStream(), "ISO-8859-1", url);
+//            Document articleXML = Jsoup.parse(new URL(url).openStream(), "ISO-8859-1", url);
 
             String id   = articleXML.select("article-id:not([pub-id-type=doi])").text();
             if (Strings.isNullOrEmpty(id)){
@@ -59,19 +61,20 @@ public class ArticleRetriever {
             String language = articleXML.select("title-group article-title").first().attr("xml:lang");
             article.setLanguage(language);
 
-            String title        = articleXML.select("title-group article-title[xml:lang=" + language + "]").text().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","");
+            String title        = articleXML.select("title-group article-title[xml:lang=" + language + "]").text();
             article.setTitle(title);
 
-            String description  = articleXML.select("abstract[xml:lang=" + language + "]").text().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","");
-            article.setDescription(description);
+            String description  = articleXML.select("abstract[xml:lang=" + language + "]").text();
+            article.setDescription(TextNormalizer.parse(description));
 
-            List<String> labels = articleXML.select("kwd[lng=en]").stream().map(el -> el.text().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","")).collect(Collectors.toList());
+            List<String> labels = articleXML.select("kwd[lng=en]").stream().map(el -> TextNormalizer.parse(el.text())).collect(Collectors.toList());
             article.setLabels(labels);
 
-            List<String> keywords = articleXML.select("kwd[lng=" + language + "]").stream().map(el -> el.text().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","")).collect(Collectors.toList());
+            List<String> keywords = articleXML.select("kwd[lng=" + language + "]").stream().map(el -> TextNormalizer.parse(el.text())).collect(Collectors.toList());
             article.setKeywords(keywords);
 
-            String paragraphs = articleXML.select("body").stream().map(el -> el.text().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","")).filter(text -> languageDetector.isLanguage(language, text)).collect(Collectors.joining(" "));
+
+            String paragraphs = articleXML.select("article > body").stream().map(el -> TextNormalizer.parse(el.text(), language)).collect(Collectors.joining(" "));
             if (Strings.isNullOrEmpty(paragraphs)) {
                 LOG.info("article is empty");
                 return article;

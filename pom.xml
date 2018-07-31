@@ -53,6 +53,7 @@
 	  <camel.version>2.14.1</camel.version> <!-- 2.22.0 -->
 	  <commons-text.version>1.4</commons-text.version>
 	  <commons-beanutils.version>1.9.3</commons-beanutils.version>
+	  <corenlp.version>3.9.1</corenlp.version>
 	  <guava.version>25.1-jre</guava.version>
 	  <jackson.version>2.9.4</jackson.version>
 	  <jsoup.version>1.11.3</jsoup.version>
@@ -114,6 +115,19 @@
 				  <groupId>com.fasterxml.jackson.core</groupId>
 				  <artifactId>jackson-databind</artifactId>
 				  <version>${jackson.version}</version>
+			  </dependency>
+
+			  <!-- Stanford CoreNLP -->
+			  <dependency>
+				  <groupId>edu.stanford.nlp</groupId>
+				  <artifactId>stanford-corenlp</artifactId>
+				  <version>${corenlp.version}</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>edu.stanford.nlp</groupId>
+				  <artifactId>stanford-corenlp</artifactId>
+				  <version>${corenlp.version}</version>
+				  <classifier>models</classifier>
 			  </dependency>
 
 			  <!-- Commons -->
@@ -202,6 +216,17 @@
 		  <dependency>
 			  <groupId>com.optimaize.languagedetector</groupId>
 			  <artifactId>language-detector</artifactId>
+		  </dependency>
+
+		  <!-- Stanford CoreNLP -->
+		  <dependency>
+			  <groupId>edu.stanford.nlp</groupId>
+			  <artifactId>stanford-corenlp</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>edu.stanford.nlp</groupId>
+			  <artifactId>stanford-corenlp</artifactId>
+			  <classifier>models</classifier>
 		  </dependency>
 
 		  <!-- Commons -->
