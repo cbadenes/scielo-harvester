@@ -1,5 +1,6 @@
 package io.github.cbadenes.scielo.service;
 
+import com.google.common.base.Strings;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.process.DocumentPreprocessor;
@@ -29,7 +30,8 @@ public class TextNormalizer {
     }
 
     public static String parse(String text, String language){
-        return sentences(text).stream().filter(s -> languageDetector.isLanguage(language,s)).map(s -> normalize(s)).collect(Collectors.joining(" "));
+        if (Strings.isNullOrEmpty(text)) return "";
+        return sentences(text).stream().filter(s -> !Strings.isNullOrEmpty(s)).filter(s -> languageDetector.isLanguage(language,s)).map(s -> normalize(s)).collect(Collectors.joining(" "));
     }
 
     public static List<String> sentences(String text){
@@ -48,10 +50,12 @@ public class TextNormalizer {
     }
 
     public static String parse(String text){
+        if (Strings.isNullOrEmpty(text)) return "";
         return sentences(text).stream().map(s -> normalize(s)).collect(Collectors.joining(" "));
     }
 
     public static String normalize(String sentence){
+        if (Strings.isNullOrEmpty(sentence)) return "";
         return removeParenthesis(sentence.trim().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","").replaceAll("( )+", " ").replaceAll("-LRB-", "[").replaceAll("-RRB-", "]"),"[]");
     }
 

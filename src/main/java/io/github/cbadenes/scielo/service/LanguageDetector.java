@@ -1,6 +1,7 @@
 package io.github.cbadenes.scielo.service;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.optimaize.langdetect.DetectedLanguage;
 import com.optimaize.langdetect.LanguageDetectorBuilder;
 import com.optimaize.langdetect.i18n.LdLocale;
@@ -66,14 +67,22 @@ public class LanguageDetector {
     }
 
     public java.util.Optional<String> getLanguageFrom(String text){
+        if (Strings.isNullOrEmpty(text)) return java.util.Optional.empty();
         TextObject textObject = textObjectFactory.forText(text);
 
         List<DetectedLanguage> probabilities = languageDetector.getProbabilities(textObject);
+        if (probabilities.isEmpty()) return java.util.Optional.empty();
+
         long langs = probabilities.stream().filter(el -> el.getProbability() > 0.2).count();
         if (langs > 1) return java.util.Optional.empty();
 
-        DetectedLanguage lang = probabilities.stream().sorted((a, b) -> -Double.valueOf(a.getProbability()).compareTo(Double.valueOf(b.getProbability()))).collect(Collectors.toList()).get(0);
-        return java.util.Optional.of(lang.getLocale().getLanguage());
+        try{
+            DetectedLanguage lang = probabilities.stream().sorted((a, b) -> -Double.valueOf(a.getProbability()).compareTo(Double.valueOf(b.getProbability()))).collect(Collectors.toList()).get(0);
+            return java.util.Optional.of(lang.getLocale().getLanguage());
+        }catch (Exception e){
+            LOG.error("Unexpected error getting language", e);
+            return java.util.Optional.empty();
+        }
 
 //        Optional<LdLocale> lang = languageDetector.detect(textObject);
 //        if (!lang.isPresent()){
@@ -83,9 +92,14 @@ public class LanguageDetector {
     }
 
     public boolean isLanguage(String language, String text){
-        java.util.Optional<String> inferredLanguage = getLanguageFrom(text);
-        if (!inferredLanguage.isPresent()) return false;
-        return inferredLanguage.get().equalsIgnoreCase(language);
+        try{
+            java.util.Optional<String> inferredLanguage = getLanguageFrom(text);
+            if (!inferredLanguage.isPresent()) return false;
+            return inferredLanguage.get().equalsIgnoreCase(language);
+        }catch (Exception e){
+            LOG.error("Unexpected error inferring language",e);
+            return false;
+        }
     }
 
 }

@@ -73,8 +73,7 @@ public class ArticleRetriever {
             List<String> keywords = articleXML.select("kwd[lng=" + language + "]").stream().map(el -> TextNormalizer.parse(el.text())).collect(Collectors.toList());
             article.setKeywords(keywords);
 
-
-            String paragraphs = articleXML.select("article > body").stream().map(el -> TextNormalizer.parse(el.text(), language)).collect(Collectors.joining(" "));
+            String paragraphs = articleXML.select("article > body").stream().map(el -> TextNormalizer.parse(el.text(), language)).filter( text -> !Strings.isNullOrEmpty(text)).collect(Collectors.joining(" "));
             if (Strings.isNullOrEmpty(paragraphs)) {
                 LOG.info("article is empty");
                 return article;
@@ -119,8 +118,8 @@ public class ArticleRetriever {
 //        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1578-908X","sample","scielo.isciii.es"));
         ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1684-1999","sample","www.scielo.org.za"));
 
-        List<Article> result = articleRetriever.retrieveAll();
-        //Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S1578-908X2013000200003&lang=en");
+//        List<Article> result = articleRetriever.retrieveAll();
+        Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S0213-12852015000600005&lang=en");
         LOG.info("result: " + result);
     }
 }
