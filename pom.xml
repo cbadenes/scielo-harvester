@@ -53,6 +53,7 @@
 	  <camel.version>2.14.1</camel.version> <!-- 2.22.0 -->
 	  <commons-text.version>1.4</commons-text.version>
 	  <commons-beanutils.version>1.9.3</commons-beanutils.version>
+	  <commons-io.version>2.6</commons-io.version>
 	  <corenlp.version>3.9.1</corenlp.version>
 	  <guava.version>25.1-jre</guava.version>
 	  <jackson.version>2.9.4</jackson.version>
@@ -140,6 +141,11 @@
 				  <groupId>org.mapdb</groupId>
 				  <artifactId>mapdb</artifactId>
 				  <version>${mapdb.version}</version>
+			  </dependency>
+			  <dependency>
+				  <groupId>commons-io</groupId>
+				  <artifactId>commons-io</artifactId>
+				  <version>${commons-io.version}</version>
 			  </dependency>
 
 			  <!-- Log Libraries -->
@@ -237,6 +243,10 @@
 		  <dependency>
 			  <groupId>org.mapdb</groupId>
 			  <artifactId>mapdb</artifactId>
+		  </dependency>
+		  <dependency>
+			  <groupId>commons-io</groupId>
+			  <artifactId>commons-io</artifactId>
 		  </dependency>
 
 		  <!-- OAI-PMH -->

@@ -3,7 +3,7 @@ package io.github.cbadenes.scielo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import io.github.cbadenes.scielo.data.Article;
+import io.github.cbadenes.scielo.data.MultiLangArticle;
 import io.github.cbadenes.scielo.data.Journal;
 import io.github.cbadenes.scielo.service.ArticleRetriever;
 import io.github.cbadenes.scielo.service.CiteManager;
@@ -17,10 +17,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,14 +33,16 @@ public class HarvestHTTPWorkflow {
     private static final Logger LOG = LoggerFactory.getLogger(HarvestHTTPWorkflow.class);
 
 
-    private static List<Article> recursiveDownloadByCitesOf(Article article, Map<String,Integer> registry, ArticleRetriever retriever) {
-        if (Strings.isNullOrEmpty(article.getText()) || registry.containsKey(article.getId())) return Collections.emptyList();
+    private static final List<String> languages = Arrays.asList(new String[]{"en","es","pt"});
+
+    private static List<MultiLangArticle> recursiveDownloadByCitesOf(MultiLangArticle article, Map<String,Integer> registry, ArticleRetriever retriever) {
+        if (article.isEmpty() || registry.containsKey(article.getId())) return Collections.emptyList();
         registry.put(article.getId(), 1);
 
-        List<Article> articles = new ArrayList<>();
+        List<MultiLangArticle> articles = new ArrayList<>();
         articles.add(article);
 
-        List<Article> citedArticles = article.getCitedBy().stream().filter(id -> CiteManager.getUrl(id).isPresent()).map(id -> CiteManager.getUrl(id).get()).map(url -> retriever.retrieveByUrl(url)).filter(art -> !Strings.isNullOrEmpty(art.getText())).collect(Collectors.toList());
+        List<MultiLangArticle> citedArticles = article.getCitedBy().stream().filter(id -> CiteManager.getUrl(id).isPresent()).map(id -> CiteManager.getUrl(id).get()).map(url -> retriever.retrieveByUrl(url)).filter(art -> !art.isPresent()).map(art -> art.get()).collect(Collectors.toList());
 
         // add cites to articles
         articles.addAll(citedArticles);
@@ -94,11 +93,15 @@ public class HarvestHTTPWorkflow {
                         ArticleRetriever articleRetriever = new ArticleRetriever(journal);
 
                         ObjectMapper jsonMapper = new ObjectMapper();
-                        List<Article> articles = articleRetriever.retrieveAll().stream().flatMap(article -> recursiveDownloadByCitesOf(article, articlesRegistry, articleRetriever).stream()).collect(Collectors.toList());
+                        List<MultiLangArticle> articles = articleRetriever.retrieveAll().stream().flatMap(article -> recursiveDownloadByCitesOf(article, articlesRegistry, articleRetriever).stream()).collect(Collectors.toList());
 
-                        for(Article article: articles){
+                        for(MultiLangArticle article: articles){
 
-                            if (article.getKeywords().isEmpty() || (article.getKeywords().size() != article.getLabels().size())){
+                            List<String> articleLangs = article.getArticles().keySet().stream().map(lang -> lang.toLowerCase()).collect(Collectors.toList());
+
+                            Boolean languagesRequired = languages.stream().map(l -> articleLangs.contains(l)).reduce((a, b) -> a && b).get();
+
+                            if (!languagesRequired){
                                 discardedArticles.incrementAndGet();
                                 continue;
                             }
