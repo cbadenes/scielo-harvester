@@ -43,7 +43,7 @@ public class HarvestHTTPWorkflow {
         List<Article> articles = new ArrayList<>();
         articles.add(article);
 
-        List<Article> citedArticles = article.getCitedBy().stream().map(id -> CiteManager.getUrl(id).get()).map(url -> retriever.retrieveByUrl(url)).filter(art -> !Strings.isNullOrEmpty(art.getText())).collect(Collectors.toList());
+        List<Article> citedArticles = article.getCitedBy().stream().filter(id -> CiteManager.getUrl(id).isPresent()).map(id -> CiteManager.getUrl(id).get()).map(url -> retriever.retrieveByUrl(url)).filter(art -> !Strings.isNullOrEmpty(art.getText())).collect(Collectors.toList());
 
         // add cites to articles
         articles.addAll(citedArticles);

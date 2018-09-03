@@ -55,11 +55,16 @@ public class ArticleRetriever {
             }
             article.setId(id);
 
-            String doi  = articleXML.select("article-id[pub-id-type=doi]").text();
-            article.setDoi(doi);
-
             String language = articleXML.select("title-group article-title").first().attr("xml:lang");
             article.setLanguage(language);
+
+            if (Strings.isNullOrEmpty(language)) {
+                LOG.info("article with not valid content retrieved: " + article);
+                return article;
+            }
+
+            String doi  = articleXML.select("article-id[pub-id-type=doi]").text();
+            article.setDoi(doi);
 
             String title        = articleXML.select("title-group article-title[xml:lang=" + language + "]").text();
             article.setTitle(title);
@@ -115,11 +120,13 @@ public class ArticleRetriever {
 
 
     public static void main(String[] args) {
-//        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1578-908X","sample","scielo.isciii.es"));
-        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1684-1999","sample","www.scielo.org.za"));
+        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1578-908X","sample","scielo.isciii.es"));
+//        ArticleRetriever articleRetriever = new ArticleRetriever(new Journal("1684-1999","sample","www.scielo.org.za"));
 
 //        List<Article> result = articleRetriever.retrieveAll();
-        Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S0213-12852015000600005&lang=en");
+//        Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S0213-12852015000600005&lang=en");
+        Article result = articleRetriever.retrieveByUrl("http://scielo.isciii.es/scieloOrg/php/articleXML.php?pid=S1130-01082004001200012&lang=en");
+
         LOG.info("result: " + result);
     }
 }
