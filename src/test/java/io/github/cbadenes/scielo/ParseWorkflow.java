@@ -15,6 +15,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +67,8 @@ public class ParseWorkflow {
         return "";
     }
 
-
-    public static void main(String[] args) throws IOException {
+    @Test
+    public void create() throws IOException {
 
             int citedArticles = 0;
             int addedCounter = 0;
