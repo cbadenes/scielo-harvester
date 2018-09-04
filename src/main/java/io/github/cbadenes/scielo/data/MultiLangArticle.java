@@ -1,5 +1,6 @@
 package io.github.cbadenes.scielo.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 /**
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MultiLangArticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(MultiLangArticle.class);
@@ -72,6 +73,7 @@ public class MultiLangArticle {
     public boolean isEmpty(){
         return articles.isEmpty();
     }
+
 
     @Override
     public String toString() {

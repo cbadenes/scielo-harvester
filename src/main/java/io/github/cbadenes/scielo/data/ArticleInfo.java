@@ -1,5 +1,6 @@
 package io.github.cbadenes.scielo.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ArticleInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArticleInfo.class);
@@ -21,6 +22,8 @@ public class ArticleInfo {
     private String description;
 
     private String pdfUrl;
+
+    private String content;
 
     private List<String> keywords = new ArrayList<>();
 
@@ -63,5 +66,13 @@ public class ArticleInfo {
 
     public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }

@@ -6,6 +6,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.github.cbadenes.scielo.data.Cite;
+import io.github.cbadenes.scielo.data.MultiLangArticle;
 import io.github.cbadenes.scielo.service.CiteManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -54,8 +55,8 @@ public class CiteWorkflow {
 
         try{
 
-            //String filePath = "https://delicias.dia.fi.upm.es/nextcloud/index.php/s/GkZwwcmBcba8HJb/download";
-            String filePath = "/Users/cbadenes/Corpus/cites/citedbyapi.json.gz";
+            String filePath = "https://delicias.dia.fi.upm.es/nextcloud/index.php/s/E9kwqW72GGC2f8S/download";
+            //String filePath = "/Users/cbadenes/Corpus/cites/citedbyapi.json.gz";
 
 
             LOG.info("loading cites from file");
@@ -73,17 +74,23 @@ public class CiteWorkflow {
             int errorCounter = 0;
             while( ( line = reader.readLine()) != null){
                 try{
-                    Cite cite = jsonMapper.readValue(line,Cite.class);
-                    CiteManager.add(cite.getArticle().getCode(), cite.getCited_by().stream().map(a -> a.getCode()).collect(Collectors.toList()));
-                    addedCounter++;
+                    MultiLangArticle article = jsonMapper.readValue(line,MultiLangArticle.class);
+
+                    //List<String> cites = CiteManager.get(article.getId());
+
+                    List<String> cites = article.getCitedBy();
+
+
+                    if (!cites.isEmpty()) addedCounter++;
+                    else discardedCounter++;
 
                 }catch (Exception e) {
-                    LOG.debug("Cite info invalid: " + e. getMessage() + " jsonEntry: " + line);
+                    LOG.error("Cite info invalid: " + e. getMessage() + " jsonEntry: " + line);
                     errorCounter++;
                 }
             }
-            LOG.info(addedCounter + " cites were added");
-            LOG.info(discardedCounter + " cites were empty");
+            LOG.info(addedCounter + " articles with cites");
+            LOG.info(discardedCounter + " articles without cites");
             LOG.info(errorCounter + " cites were wrong");
             reader.close();
             CiteManager.close();
