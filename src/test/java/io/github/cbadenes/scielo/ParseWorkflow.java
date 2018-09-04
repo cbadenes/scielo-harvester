@@ -76,7 +76,7 @@ public class ParseWorkflow {
             int errorCounter = 0;
 
 //            String filePath = "https://delicias.dia.fi.upm.es/nextcloud/index.php/s/E9kwqW72GGC2f8S/download";
-            String filePath = "corpus/articles-full.json.gz";
+            String filePath = "corpus/articles.json.gz";
 
 
             LOG.info("loading articles from file: " + filePath);
