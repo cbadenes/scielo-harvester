@@ -44,7 +44,7 @@ public class LanguageDetector {
 
             Iterator it = BuiltInLanguages.getLanguages().iterator();
 
-            List<String> availableLangs = Arrays.asList(new String[]{"en","es","fr","de"});
+            List<String> availableLangs = Arrays.asList(new String[]{"en","es","fr","de","pt"});
             while(it.hasNext()) {
                 LdLocale locale = (LdLocale)it.next();
                 if (availableLangs.contains(locale.getLanguage())) {

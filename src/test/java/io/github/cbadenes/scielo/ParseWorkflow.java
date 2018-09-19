@@ -118,7 +118,7 @@ public class ParseWorkflow {
 
                         articleByLang.setContent(validText.replace("\n"," ").replace("\r"," ").replace("- ",""));
                         articles.put(lang,articleByLang);
-                        LOG.info("Characters ("+lang+"): " + text.length());
+                        LOG.info("Characters ("+lang+"): " + validText.length());
                     }
 
                     article.setArticles(articles);
