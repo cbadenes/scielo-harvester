@@ -6,6 +6,7 @@ import io.github.cbadenes.scielo.data.ArticleInfo;
 import io.github.cbadenes.scielo.data.Cite;
 import io.github.cbadenes.scielo.data.MultiLangArticle;
 import io.github.cbadenes.scielo.service.CiteManager;
+import io.github.cbadenes.scielo.service.LanguageFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
@@ -89,7 +90,7 @@ public class ParseWorkflow {
             if (outputFile.exists()) outputFile.delete();
             else outputFile.getParentFile().mkdirs();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputFile))));
-
+        LanguageFilter languageFilter = new LanguageFilter();
         try{
             String line = null;
 
@@ -112,7 +113,10 @@ public class ParseWorkflow {
                             discardedCounter++;
                             continue;
                         }
-                        articleByLang.setContent(text.replace("\n"," ").replace("\r"," ").replace("- ",""));
+
+                        String validText = languageFilter.retrieve(lang, text);
+
+                        articleByLang.setContent(validText.replace("\n"," ").replace("\r"," ").replace("- ",""));
                         articles.put(lang,articleByLang);
                         LOG.info("Characters ("+lang+"): " + text.length());
                     }
