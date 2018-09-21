@@ -7,6 +7,7 @@ import io.github.cbadenes.scielo.data.Cite;
 import io.github.cbadenes.scielo.data.MultiLangArticle;
 import io.github.cbadenes.scielo.service.CiteManager;
 import io.github.cbadenes.scielo.service.LanguageFilter;
+import io.github.cbadenes.scielo.utils.ParallelExecutor;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
@@ -27,6 +28,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -71,10 +74,10 @@ public class ParseWorkflow {
     @Test
     public void create() throws IOException {
 
-            int citedArticles = 0;
-            int addedCounter = 0;
-            int discardedCounter = 0;
-            int errorCounter = 0;
+            AtomicInteger citedArticles = new AtomicInteger();
+        AtomicInteger addedCounter = new AtomicInteger();
+        AtomicInteger discardedCounter = new AtomicInteger();
+        AtomicInteger errorCounter =  new AtomicInteger();
 
 //            String filePath = "https://delicias.dia.fi.upm.es/nextcloud/index.php/s/E9kwqW72GGC2f8S/download";
             String filePath = "corpus/articles.json.gz";
@@ -96,52 +99,63 @@ public class ParseWorkflow {
 
             ObjectMapper jsonMapper = new ObjectMapper();
 
+            ParallelExecutor executor = new ParallelExecutor();
             while( ( line = reader.readLine()) != null){
-                try{
-                    MultiLangArticle article = jsonMapper.readValue(line,MultiLangArticle.class);
 
-                    List<String> cites = CiteManager.get(article.getId());
-                    article.setCitedBy(cites);
-                    if (!cites.isEmpty()) citedArticles++;
+                final String json = line;
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            MultiLangArticle article = jsonMapper.readValue(json,MultiLangArticle.class);
 
-                    Map<String, ArticleInfo> articles = article.getArticles();
+                            Map<String, ArticleInfo> articles = article.getArticles();
 
-                    for (String lang : articles.keySet()){
-                        ArticleInfo articleByLang = articles.get(lang);
-                        String text = toText(articleByLang.getPdfUrl());
-                        if (Strings.isNullOrEmpty(text)){
-                            discardedCounter++;
-                            continue;
+                            for (String lang : articles.keySet()){
+                                ArticleInfo articleByLang = articles.get(lang);
+                                String text = toText(articleByLang.getPdfUrl());
+                                if (Strings.isNullOrEmpty(text)){
+                                    discardedCounter.incrementAndGet();
+                                    continue;
+                                }
+
+                                String validText = languageFilter.retrieve(lang, text);
+
+                                if (Strings.isNullOrEmpty(validText)){
+                                    discardedCounter.incrementAndGet();
+                                    continue;
+                                }
+
+                                articleByLang.setContent(validText.replace("\n"," ").replace("\r"," ").replace("- ",""));
+                                articles.put(lang,articleByLang);
+                                LOG.info("Characters ("+lang+"): " + validText.length());
+                            }
+
+                            article.setArticles(articles);
+                            writer.write(jsonMapper.writeValueAsString(article)+"\n");
+
+                            addedCounter.incrementAndGet();
+
+                        }catch (Exception e) {
+                            LOG.error("Cite info invalid: " + e. getMessage() + " jsonEntry: " + json);
+                            errorCounter.incrementAndGet();
                         }
-
-                        String validText = languageFilter.retrieve(lang, text);
-
-                        articleByLang.setContent(validText.replace("\n"," ").replace("\r"," ").replace("- ",""));
-                        articles.put(lang,articleByLang);
-                        LOG.info("Characters ("+lang+"): " + validText.length());
                     }
+                });
 
-                    article.setArticles(articles);
-                    writer.write(jsonMapper.writeValueAsString(article)+"\n");
-
-                    addedCounter++;
-
-                }catch (Exception e) {
-                    LOG.error("Cite info invalid: " + e. getMessage() + " jsonEntry: " + line);
-                    errorCounter++;
-                }
             }
+            executor.awaitTermination(1, TimeUnit.HOURS);
             CiteManager.close();
         }catch (Exception e){
-            LOG.error("Error loading cites",e);
+            LOG.error("Error loading fullcontent",e);
         }finally {
 
             reader.close();
             writer.close();
-            LOG.info(errorCounter + " articles cited");
-            LOG.info(addedCounter + " articles with content");
-            LOG.info(discardedCounter + " articles without content");
-            LOG.info(errorCounter + " articles were wrong");
+            LOG.info(errorCounter.get() + " articles cited");
+            LOG.info(addedCounter.get() + " articles with content");
+            LOG.info(discardedCounter.get() + " articles without content");
+            LOG.info(errorCounter.get() + " articles were wrong");
 
         }
 
