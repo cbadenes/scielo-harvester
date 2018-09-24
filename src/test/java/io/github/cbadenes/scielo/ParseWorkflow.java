@@ -45,10 +45,7 @@ public class ParseWorkflow {
     public static String toText(String pdfUrl){
         LOG.info("parsing content from '"+ pdfUrl+"'");
 
-        File file = new File("/Users/cbadenes/Downloads/sample.pdf");
-
-        //try (PDDocument document = PDDocument.load(new URL(pdfUrl).openStream())) {
-        try (PDDocument document = PDDocument.load(file)) {
+        try (PDDocument document = PDDocument.load(new URL(pdfUrl).openStream())) {
 
             if (!document.isEncrypted()) {
                 PDFTextStripper tStripper = new PDFTextStripper();
@@ -63,10 +60,10 @@ public class ParseWorkflow {
         return "";
     }
 
-    public static Map<String,String> retrieveContent(String articleId){
+    public static Map<String,String> retrieveContent(MultiLangArticle article){
         Map<String,String> content = new HashMap<>();
         try{
-            String url = "http://articlemeta.scielo.org/api/v1/article/?collection=scl&format=xmlrsps&body=true&code="+articleId;
+            String url = "http://articlemeta.scielo.org/api/v1/article/?collection=scl&format=xmlrsps&body=true&code="+article.getId();
 
             Document articleXML = Jsoup.connect(url).get();
 
@@ -78,7 +75,11 @@ public class ParseWorkflow {
                 String text     = translation.select("body[specific-use=quirks-mode]").text();
 
                 if (Strings.isNullOrEmpty(text)){
-                    LOG.warn("Empty text for language '" + lang + "' in article " + articleId);
+                    text = toText(article.getArticles().get(lang).getPdfUrl());
+                }
+
+                if (Strings.isNullOrEmpty(text)){
+                    LOG.error("Not available content in '"+ lang+"' for article: " + article.getId());
                     continue;
                 }
 
@@ -94,7 +95,20 @@ public class ParseWorkflow {
 
 
         }catch (Exception e){
-            LOG.error("Unexpected error",e);
+
+            for(Map.Entry<String,ArticleInfo> art : article.getArticles().entrySet()){
+
+                String lang = art.getKey();
+                String text = toText(art.getValue().getPdfUrl());
+                if (Strings.isNullOrEmpty(text)){
+                    LOG.error("Not available content in '"+ lang+"' for article: " + article.getId());
+                    continue;
+                }
+                String parsedText = TextNormalizer.parse(text);
+                content.put(lang, parsedText);
+            }
+
+
         }
         return content;
 
@@ -137,10 +151,15 @@ public class ParseWorkflow {
 
                         Map<String, ArticleInfo> articles = article.getArticles();
 
-                        Map<String, String> articleContent = retrieveContent(article.getId());
+                        Map<String, String> articleContent = retrieveContent(article);
 
                         for (String lang : articles.keySet()) {
                             ArticleInfo articleByLang = articles.get(lang);
+                            if (!articleContent.containsKey(lang) || Strings.isNullOrEmpty(articleContent.get(lang))){
+                                discardedCounter.incrementAndGet();
+                                LOG.warn("Content in '" + lang + "' is empty for article: " + article.getId());
+                                return;
+                            }
                             String contentByLang = articleContent.get(articleByLang.getLanguage());
                             articleByLang.setContent(contentByLang);
                             articles.put(lang, articleByLang);
@@ -167,9 +186,8 @@ public class ParseWorkflow {
 
             reader.close();
             writer.close();
-            LOG.info(errorCounter.get() + " articles cited");
-            LOG.info(addedCounter.get() + " articles with content");
-            LOG.info(discardedCounter.get() + " articles without content");
+            LOG.info(addedCounter.get() + " articles added");
+            LOG.info(discardedCounter.get() + " articles discarded");
             LOG.info(errorCounter.get() + " articles were wrong");
 
         }

@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -31,13 +32,47 @@ public class StatisticsWorkflow {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatisticsWorkflow.class);
 
+    private boolean validate(MultiLangArticle article){
+
+        if (Strings.isNullOrEmpty(article.getId())) {
+            LOG.warn("Empty ID");
+            return false;
+        }
+
+        if (article.getArticles().size() < 3) {
+            LOG.warn("Not multi-language articles: " + article);
+            return false;
+        }
+
+        for(Map.Entry<String, ArticleInfo> art : article.getArticles().entrySet()){
+
+            ArticleInfo info = art.getValue();
+
+//            if (info.getKeywords().isEmpty()){
+//                LOG.warn("No keywords available in '" + art.getKey() + "' for article: " + article.getId());
+//
+//                if (art.getKey().equalsIgnoreCase("en")) return false;
+//            }
+
+            if (Strings.isNullOrEmpty(info.getContent())){
+                LOG.warn("No content available in '" + art.getKey() + "' for article: " + article.getId());
+                return false;
+            }
+
+
+        }
+
+        return true;
+
+    }
+
 
     @Test
     public void create() throws IOException {
 
         int numArticles = 0;
 
-        String filePath = "corpus/articles-full-fixed.json.gz";
+        String filePath = "corpus/articles-full.json.gz";
 
 
         LOG.info("loading articles from file: " + filePath);
@@ -49,6 +84,9 @@ public class StatisticsWorkflow {
         Map<String,Integer> docsByTags      = new HashMap<>();
         Map<String,Integer> docsByJournal   = new HashMap<>();
 
+        AtomicInteger validDocs     = new AtomicInteger();
+        AtomicInteger invalidDocs   = new AtomicInteger();
+
         try{
             String line = null;
 
@@ -57,6 +95,9 @@ public class StatisticsWorkflow {
             while( ( line = reader.readLine()) != null){
                 try{
                     MultiLangArticle article = jsonMapper.readValue(line,MultiLangArticle.class);
+
+                    if (validate(article)) validDocs.incrementAndGet();
+                    else invalidDocs.incrementAndGet();
 
                     ++numArticles;
 
@@ -109,6 +150,9 @@ public class StatisticsWorkflow {
             docsByTags.entrySet().stream().sorted((a,b) -> -a.getValue().compareTo(b.getValue())).limit(20).forEach( entry -> LOG.info("Tag '"+entry.getKey()+"' -> " + entry.getValue()));
 
             LOG.info("Total Articles: " + numArticles);
+
+            LOG.info("Valid Articles: " + validDocs.get());
+            LOG.info("Invalid Articles: " + invalidDocs.get());
 
         }
 
