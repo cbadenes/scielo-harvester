@@ -56,7 +56,7 @@ public class TextNormalizer {
 
     public static String normalize(String sentence){
         if (Strings.isNullOrEmpty(sentence)) return "";
-        return removeParenthesis(sentence.trim().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","").replaceAll("( )+", " ").replaceAll("-LRB-", "[").replaceAll("-RRB-", "]"),"[]");
+        return removeParenthesis(sentence.trim().replaceAll("\\<.*?\\>","").replaceAll("\\&.*?\\;","").replaceAll("( )+", " ").replaceAll("-LSB-", "").replaceAll("-RSB","").replaceAll("-LRB-", "").replaceAll("-RRB-", ""),"[]");
     }
 
     public static String removeParenthesis(String input_string, String parenthesis_symbol){
