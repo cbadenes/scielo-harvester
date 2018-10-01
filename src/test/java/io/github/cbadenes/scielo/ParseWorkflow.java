@@ -90,7 +90,7 @@ public class ParseWorkflow {
 
             String mainLanguage = articleXML.select("article").attr("xml:lang");
             String mainText     = articleXML.select("article body[specific-use=quirks-mode]").text();
-            String parsedMainText   = TextNormalizer.parse(mainText);
+            String parsedMainText   = TextNormalizer.parse(mainText,mainLanguage);
             content.put(mainLanguage, parsedMainText);
 
 
