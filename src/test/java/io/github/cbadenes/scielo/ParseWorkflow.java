@@ -83,7 +83,7 @@ public class ParseWorkflow {
                     continue;
                 }
 
-                String parsedText = TextNormalizer.parse(text);
+                String parsedText = TextNormalizer.parse(text,lang);
                 content.put(lang, parsedText);
 
             }

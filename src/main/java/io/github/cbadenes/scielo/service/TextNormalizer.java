@@ -23,16 +23,16 @@ public class TextNormalizer {
     private static final Logger LOG = LoggerFactory.getLogger(TextNormalizer.class);
 
 
-//    private static LanguageDetector languageDetector;
+    private static LanguageDetector languageDetector;
 
-//    static{
-//        languageDetector = new LanguageDetector();
-//    }
+    static{
+        languageDetector = new LanguageDetector();
+    }
 
-//    public static String parse(String text, String language){
-//        if (Strings.isNullOrEmpty(text)) return "";
-//        return sentences(text).stream().filter(s -> !Strings.isNullOrEmpty(s)).filter(s -> languageDetector.isLanguage(language,s)).map(s -> normalize(s)).collect(Collectors.joining(" "));
-//    }
+    public static String parse(String text, String language){
+        if (Strings.isNullOrEmpty(text)) return "";
+        return sentences(text).stream().filter(s -> !Strings.isNullOrEmpty(s)).filter(s -> languageDetector.isLanguage(language,s)).map(s -> normalize(s)).collect(Collectors.joining(" "));
+    }
 
     public static List<String> sentences(String text){
         List<String> sentences = new ArrayList<>();
